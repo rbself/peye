@@ -1,4 +1,10 @@
 
+#include <stdlib.h>
+#include <stdio.h>
+
+#include "common.h"
+#include "line.h"
+#include "object.h"
 
 
 int combine_obj_line()
@@ -39,6 +45,10 @@ int eye_init()
 
 }
 
+void main()
+{
+
+}
 
 
 

@@ -21,8 +21,8 @@ typedef struct st_pixel{
 
 
 struct object{
-	char colour;
-	struct st_pixel *pix[1000];
+	unsigned char colour;
+	PLACE *parry;
 	PLACE centre;
 	int height;
 	int width;
@@ -31,8 +31,8 @@ struct object{
 	int	left;
 	int right;
 	int bottom;
-	struct st_line *ledge;
-	struct st_line *redge;
+	LINE ledge;
+	LINE redge;
 };
 
 

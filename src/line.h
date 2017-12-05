@@ -1,10 +1,8 @@
 
 #ifndef __LINE_H__
 #define __LINE_H__
-
-
 #include "common.h"
-#include "object.h"
+
 enum{
 	OBLIQUE_STRAIGHT_LINE,
 	PLANE_STRAIGHT_LINE,
@@ -23,9 +21,10 @@ typedef struct st_line{
 }LINE;
 
 int set_line_type(LINE *line);
-int generate_edge(struct st_pixel *pix, int pixcnt, LINE *ledge, LINE *redge);
+int generate_edge(PLACE *pix, int pixcnt, LINE *ledge, LINE *redge);
 int line_reach_place(PLACE *src, PLACE *aim);
 int is_line_continuous(PLACE *a, PLACE *b);
+int init_line(LINE *line, int arrynum);
 
 #endif
 

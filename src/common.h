@@ -17,7 +17,7 @@ struct peye{
 	int stride;
 };
 
-#define peye_assert(x) if(x) printf("%f %d asert!\n", __FILE__, __LINE__);
+#define peye_assert(x) if(x) printf("%s %d asert!\n", __FILE__, __LINE__);
 int is_similar_colour(unsigned char a, unsigned char b);
 
 #endif

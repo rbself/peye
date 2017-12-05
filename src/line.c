@@ -9,26 +9,20 @@
 
 
 
-LINE* new_line(int arrynum)
+int init_line(LINE *line, int arrynum)
 {
-	LINE *line;
-
-	line = malloc(sizeof(LINE));
+	line->num = 0;
+	line->arry = malloc(sizeof(PLACE)*arrynum);
 	if (NULL==line){
-		return NULL;
-	}
-	line->arry = malloc(arrynum * sizeof(PLACE));
-	if (NULL == line->arry){
-		return NULL;
+		return -1;
 	}
 
-	return line;
+	return 0;
 }
 
 void free_line(LINE *line)
 {
 	if (line->arry)free(line->arry);
-	free(line);
 }
 
 int is_line_continuous(PLACE *a, PLACE *b)
@@ -89,14 +83,20 @@ int line_reach_place(PLACE *src, PLACE *aim)
 
 }
 
-int generate_edge(struct st_pixel *pix, int pixcnt, LINE *ledge, LINE *redge)
+int generate_edge(PLACE *pix, int pixcnt, LINE *ledge, LINE *redge)
 {
 	int i, j;
-	struct st_pixel *p;
+	PLACE *p;
 	PLACE *tl, *tr, *ml, *mr, *or, *ol;
 	PLACE *lp, *rp;
 	int line_num = 0;
 	int ext_num;
+
+	printf("pcnt:%d start:y %d x %d end: %d %d \n", pixcnt, pix[0].y, pix[0].x, pix[pixcnt-1].y, pix[pixcnt-1].x);
+	if (pixcnt < 50){
+		printf("<50,return\n");
+		return 0;
+	}
 
 	ml = tl = malloc(10000*sizeof(PLACE));
 	mr = tr = malloc(10000*sizeof(PLACE));
@@ -106,10 +106,10 @@ int generate_edge(struct st_pixel *pix, int pixcnt, LINE *ledge, LINE *redge)
 	//ml->y = 
 		mr->y = pix->y;
 	
-	ledge->num = redge->num= 0;
-	
-	for (i = 1; i > pixcnt; i++){
+	line_num = 1;
+	for (i = 1; i < pixcnt; i++){
 		p = pix+i;
+		//printf("y:%d x:%d \n", p->y, p->x);
 		if (p->y > ml->y){  /*new line*/
 			ml++;
 			mr++;
@@ -133,15 +133,20 @@ int generate_edge(struct st_pixel *pix, int pixcnt, LINE *ledge, LINE *redge)
 	ol->y = ml->y;
 	or->x = mr->x;
 	or->y = mr->y;
+
 	
+	ledge->num = redge->num= 1;
+	
+	printf("line num %d\n", line_num);
+
 	for (i = 1; i < line_num-1; i++){
 		
 		peye_assert(ol->y == (ml+1)->y);
 		
 		if (!is_line_continuous(ol, ++ml)){
-			ext_num = line_reach_place(ol, ml);
-			ledge->num += ext_num;
-			ol += ext_num;
+			//ext_num = line_reach_place(ol, ml);
+			//ledge->num += ext_num;
+			//ol += ext_num;
 		}else {
 			ledge->num++;
 			ol++;
@@ -152,9 +157,9 @@ int generate_edge(struct st_pixel *pix, int pixcnt, LINE *ledge, LINE *redge)
 		peye_assert(or->y == (mr+1)->y);
 		
 		if (!is_line_continuous(or, ++mr)){
-			ext_num = line_reach_place(or, mr);
-			redge->num += ext_num;
-			or += ext_num;
+			//ext_num = line_reach_place(or, mr);
+			//redge->num += ext_num;
+			//or += ext_num;
 		}else {
 			redge->num++;
 			or++;
@@ -172,8 +177,8 @@ int generate_edge(struct st_pixel *pix, int pixcnt, LINE *ledge, LINE *redge)
 	redge->end   = redge->arry + ledge->num;
 
 	if (!is_line_continuous(ledge->end,redge->end)){
-		ledge->num += line_reach_place(ledge->end, redge->end);
-		redge->end	 = redge->arry + ledge->num;
+		//ledge->num += line_reach_place(ledge->end, redge->end);
+		//redge->end	 = redge->arry + ledge->num;
 	}
 	
 	return 0;

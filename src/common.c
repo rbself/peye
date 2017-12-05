@@ -15,7 +15,7 @@
 
 int is_similar_colour(unsigned char a, unsigned char b)
 {
-	if (abs(a-b)<=2){
+	if (abs(a-b)<=30){
 		return 1;
 	}
 	

@@ -72,9 +72,9 @@ int shape_obj(FRAME_OBJ *frame)
 
 	for (i=0; i<frame->obj_cunt; i++){
 		obj = &frame->objs[i];
-		if (obj->pcunt < 100){
-			continue;
-		}
+		//if (obj->pcunt < 100){
+		//	continue;
+		//}
 		generate_edge(obj->parry, obj->pcunt, &obj->ledge, &obj->redge);
 		
 		obj->height = obj->bottom - obj->top + 1;
@@ -113,7 +113,7 @@ struct object* new_object(FRAME_OBJ *frame, unsigned char c)
 
 	if (frame->obj_cunt > MAX_OBJ_NUM-2){
 		pdbg("no obj avlibe.\n");
-		return  &frame->objs[frame->obj_cunt];
+		return  NULL;
 	}
 	
 	obj = &frame->objs[frame->obj_cunt];
@@ -177,8 +177,10 @@ int obj_parse_process(FRAME_OBJ *frame, char *yp)
 			pdbg("start y:%d x:%d c:%d \n", i, j, current->colour);
 			if (j == 0 && i == 400){
 				obj = new_object(frame, current->colour);
-				add_pixle_to_obj(obj, i, j);
-				current->obj = obj;
+				if (obj){
+					add_pixle_to_obj(obj, i, j);
+					current->obj = obj;
+				}
 				continue;
 			} else if(j == 0){
 				ref[ref_cunt++] = &frame->parry[i-1][j];
@@ -208,16 +210,20 @@ int obj_parse_process(FRAME_OBJ *frame, char *yp)
 			for(k = 0; k < ref_cunt; k++){
 				if (is_similar_colour(current->colour, ref[k]->colour)){
 					pdbg("similar to ref %d\n", k);
-					add_pixle_to_obj(ref[k]->obj, i, j);
-					current->obj = ref[k]->obj;
+					if (ref[k]->obj){
+						add_pixle_to_obj(ref[k]->obj, i, j);
+						current->obj = ref[k]->obj;
+					}
 					break;
 				}
 			}
 
 			if (k >= ref_cunt){
 				obj = new_object(frame, current->colour);
-				add_pixle_to_obj(obj, i, j);
-				current->obj = obj;
+				if (obj){
+					add_pixle_to_obj(obj, i, j);
+					current->obj = obj;
+				}
 			}
 		}
 	}

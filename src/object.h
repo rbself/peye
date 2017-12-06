@@ -6,7 +6,7 @@
 #include "line.h"
 
 #define MAX_OBJ_PLACE_NUM 100000
-#define MAX_OBJ_NUM 1000
+#define MAX_OBJ_NUM 6000
 
 #define MAX_HEIGHT 1080
 #define MAX_WIDTH  1920

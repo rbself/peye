@@ -101,41 +101,47 @@ int generate_edge(PLACE *pix, int pixcnt, LINE *ledge, LINE *redge)
 	PLACE *lp, *rp;
 	int line_num = 0;
 	int ext_num;
+	int t;
 
-	if (pixcnt < 50){
-		return 0;
-	}
-	
-	printf("pcnt:%d start:y %d x %d end: %d %d \n", pixcnt, pix[0].y, pix[0].x, pix[pixcnt-1].y, pix[pixcnt-1].x);
+	printf("*****************************\npcnt:%d start:y %d x %d end: %d %d \n", pixcnt, pix[0].y, pix[0].x, pix[pixcnt-1].y, pix[pixcnt-1].x);
 
 	ml = tl = malloc(10000*sizeof(PLACE));
 	mr = tr = malloc(10000*sizeof(PLACE));
 
-	//ml->x = 
-		mr->x = pix->x;
-	//ml->y = 
-		mr->y = pix->y;
-	
+
+	ml->x = pix->x;
+	ml->y = pix->y;
 	line_num = 1;
+	t = pix->y;
 	for (i = 1; i < pixcnt; i++){
 		p = pix+i;
-		//printf("y:%d x:%d \n", p->y, p->x);
+		if (t != p->y){
+			printf("\n");
+			t = p->y;
+		}
+		printf("[%d %d ]", p->y, p->x);
+		
 		if (p->y > ml->y){  /*new line*/
+			mr->x = (p-1)->x;
+			mr->y = (p-1)->y;
+
 			ml++;
 			mr++;
 			line_num++;
 	
 			ml->y = p->y;
 			ml->x = p->x;
-		}else if (p->x > mr->x){
-			mr->x = p->x;
-			mr->y = p->y;
 		}
 	}
-
+	mr->x = (p-1)->x;
+	mr->y = (p-1)->y;
+	printf("\n");
 	/*proccess gap*/
 	ml = tl;
 	mr = tr;
+	
+	printf("line num %d\n", line_num);
+
 	printf("tmp l line:\n");
 	for (i = 0; i < line_num; i++){
 		printf("[%d %d] ", tl[i].y, tl[i].x);
@@ -157,8 +163,6 @@ int generate_edge(PLACE *pix, int pixcnt, LINE *ledge, LINE *redge)
 
 	
 	ledge->num = redge->num= 1;
-	
-	printf("line num %d\n", line_num);
 
 	for (i = 1; i < line_num-1; i++){
 		

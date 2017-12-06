@@ -34,6 +34,16 @@ int is_line_continuous(PLACE *a, PLACE *b)
 	return 1;
 }
 
+int print_line(LINE *line)
+{
+	int i;
+	printf("this line num:%d\n", line->num);
+	for (i = 0; i < line->num; i++){
+		printf("[%d %d] ", line->arry[i].y, line->arry[i].x);
+	}
+	printf("\n");
+}
+
 int line_reach_place(PLACE *src, PLACE *aim)
 {
 	int j, cnt=0;
@@ -92,11 +102,11 @@ int generate_edge(PLACE *pix, int pixcnt, LINE *ledge, LINE *redge)
 	int line_num = 0;
 	int ext_num;
 
-	printf("pcnt:%d start:y %d x %d end: %d %d \n", pixcnt, pix[0].y, pix[0].x, pix[pixcnt-1].y, pix[pixcnt-1].x);
 	if (pixcnt < 50){
-		printf("<50,return\n");
 		return 0;
 	}
+	
+	printf("pcnt:%d start:y %d x %d end: %d %d \n", pixcnt, pix[0].y, pix[0].x, pix[pixcnt-1].y, pix[pixcnt-1].x);
 
 	ml = tl = malloc(10000*sizeof(PLACE));
 	mr = tr = malloc(10000*sizeof(PLACE));
@@ -126,6 +136,17 @@ int generate_edge(PLACE *pix, int pixcnt, LINE *ledge, LINE *redge)
 	/*proccess gap*/
 	ml = tl;
 	mr = tr;
+	printf("tmp l line:\n");
+	for (i = 0; i < line_num; i++){
+		printf("[%d %d] ", tl[i].y, tl[i].x);
+	}
+	printf("\n");
+	printf("tmp r line:\n");
+	for (i = 0; i < line_num; i++){
+		printf("[%d %d] ", tr[i].y, tr[i].x);
+	}
+	printf("\n");
+	
 	ol = ledge->arry;
 	or = redge->arry;
 	

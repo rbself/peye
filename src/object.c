@@ -72,87 +72,85 @@ int shape_obj(FRAME_OBJ *frame)
 
 	for (i=0; i<frame->obj_cunt; i++){
 		obj = &frame->objs[i];
-		//generate_edge(obj->parry, obj->pcunt, &obj->ledge, &obj->redge);
+		if (obj->pcunt < 100){
+			continue;
+		}
+		generate_edge(obj->parry, obj->pcunt, &obj->ledge, &obj->redge);
 		
 		obj->height = obj->bottom - obj->top + 1;
 		obj->width = obj->right - obj->left + 1;
 
 		obj->centre.x = obj->left + (obj->width/2);
 		obj->centre.y = obj->top + (obj->height/2);
-		printf("obj: c: %d start: y:%d x:%d end: y:%d x:%d\n",obj->colour, obj->parry[0].y, obj->parry[0].x, obj->parry[obj->pcunt-1].y, obj->parry[obj->pcunt-1].x);
-		if (i==0){
-			int j=0, k;
+		pdbg("obj: c: %d start: y:%d x:%d end: y:%d x:%d\n",obj->colour, obj->parry[0].y, obj->parry[0].x, obj->parry[obj->pcunt-1].y, obj->parry[obj->pcunt-1].x);
+		if (i<57){
+			int j, k;
+			j=0;
 			k = obj->parry[0].y;
 			while (j < obj->pcunt){
 				if(k != obj->parry[j].y) {
-					printf("\n");
+					pdbg("\n");
 					k = obj->parry[j].y;
 				}
-				printf("y:%d x:%d  ", obj->parry[j].y, obj->parry[j].x);
+				pdbg("[y:%d x:%d c:%d ] ", obj->parry[j].y, obj->parry[j].x, frame->parry[obj->parry[j].y][obj->parry[j].x].colour);
 				j++;
 			}
 		}
+		printf("ledge: \n");
+		print_line(&obj->ledge);
+		printf("redge: \n");
+		print_line(&obj->redge);
 	}
 
 	return 0;
 }
 
-struct object* new_object(FRAME_OBJ *frame, PIXEL *p)
+struct object* new_object(FRAME_OBJ *frame, unsigned char c)
 {
 	struct object *obj;
 
-	//printf("add new obj x:%d y:%d c:%d.\n", p->x, p->y, p->colour);
+	//pdbg("add new obj x:%d y:%d c:%d.\n", p->x, p->y, p->colour);
 
-	if (frame->obj_cunt > 1000-2){
-		printf("no obj avlibe.\n");
+	if (frame->obj_cunt > MAX_OBJ_NUM-2){
+		pdbg("no obj avlibe.\n");
 		return  &frame->objs[frame->obj_cunt];
 	}
 	
-	obj = &frame->objs[frame->obj_cunt++];
-
-	obj->parry = malloc(sizeof(PLACE)*100000);
+	obj = &frame->objs[frame->obj_cunt];
+	obj->parry = malloc(sizeof(PLACE)*MAX_OBJ_PLACE_NUM);
+	obj->no = frame->obj_cunt;
 
 	init_line(&obj->ledge, 10000);
 	init_line(&obj->redge, 10000);
 
-	obj->colour= p->colour;
-	obj->parry[obj->pcunt].x = p->x;
-	obj->parry[obj->pcunt].y = p->y;
-	obj->height = 1;
-	obj->width = 1;
-	obj->pcunt = 1;
-	obj->top = obj->bottom = p->y;
-	obj->left = obj->right = p->x;
-
-	p->obj = obj;
-	
+	obj->colour = c;
+	obj->height = 0;
+	obj->width = 0;
+	obj->pcunt = 0;
+	frame->obj_cunt++;
+	pdbg("new object cnt:%d\n", frame->obj_cunt);
 	return obj;
 }
 
-int add_pixle_to_obj(struct object *obj, PIXEL *p)
+int add_pixle_to_obj(struct object* obj, int y, int x)
 {
-	//printf("add pixel x:%d y:%d to c:%d.\n", p->x, p->y, p->colour);
-
-	if (obj->pcunt > 1000-2){
-		//printf("obj full %d\n\n", obj->pcunt);
-		p->obj=obj;
+	if (obj->pcunt > MAX_OBJ_PLACE_NUM-2){
 		return 0;
 	}
-
-	obj->parry[obj->pcunt].x = p->x;
-	obj->parry[obj->pcunt].y = p->y;
+	pdbg("add %d %d to %d obj at %d\n", y, x,obj->no, obj->pcunt);
+	obj->parry[obj->pcunt].x = x;
+	obj->parry[obj->pcunt].y = y;
 	obj->pcunt++;
-	p->obj=obj;
-	if (p->x < obj->left){
-		obj->left = p->x;
-	} else if (p->x > obj->right){
-		obj->right = p->x;
+
+	if (x < obj->left){
+		obj->left = x;
+	} else if (x > obj->right){
+		obj->right = x;
 	}
 
-	if (p->y > obj->bottom){
-		obj->bottom = p->y;
+	if (y > obj->bottom){
+		obj->bottom = y;
 	}
-
 	
 	return 0;
 }
@@ -168,66 +166,59 @@ int obj_parse_process(FRAME_OBJ *frame, char *yp)
 	struct object *obj;
 	unsigned char colour;
 
-	printf("%s %d\n", __FUNCTION__, __LINE__);
-	for(i=400; i < 550; i++){
+	pdbg("%s %d\n", __FUNCTION__, __LINE__);
+	for(i=START_LINE; i < END_LINE; i++){
 		line = yp + (i*frame->width);
-		//printf("%s %d\n", __FUNCTION__, __LINE__);
 
-		for (j = 0; j < frame->width-1; j++){
-			//printf("%s %d\n", __FUNCTION__, __LINE__);
+		for (j = 0; j < frame->width; j++){
 			current = &frame->parry[i][j];
-			current->x = j;
-			current->y = i;
 			current->colour = *(line+j);
 			ref_cunt = 0;
-			//printf("%s %d\n", __FUNCTION__, __LINE__);
-
+			pdbg("start y:%d x:%d c:%d \n", i, j, current->colour);
 			if (j == 0 && i == 400){
-				//printf("%s %d\n", __FUNCTION__, __LINE__);
-				new_object(frame, current);
+				obj = new_object(frame, current->colour);
+				add_pixle_to_obj(obj, i, j);
+				current->obj = obj;
 				continue;
 			} else if(j == 0){
-				//printf("%s %d\n", __FUNCTION__, __LINE__);
 				ref[ref_cunt++] = &frame->parry[i-1][j];
 				ref[ref_cunt++] = &frame->parry[i-1][j+1];
+				pdbg("ref:[%d %d] [%d %d]\n", i-1, j, i-1, j+1);
 			} else if (i == 400){
-				//printf("%s %d\n", __FUNCTION__, __LINE__);
 				ref[ref_cunt++] = &frame->parry[i][j-1];
+				pdbg("ref:[%d %d]\n", i, j-1);
 			} else {
-				//printf("%s %d\n", __FUNCTION__, __LINE__);
-				ref[ref_cunt++] = &frame->parry[i][j-1]; //left
-				ref[ref_cunt++] = &frame->parry[i-1][j-1]; //left-up
-				ref[ref_cunt++] = &frame->parry[i-1][j]; //left-up
+				ref[ref_cunt++] = &frame->parry[i][j-1];      /*left*/
+				ref[ref_cunt++] = &frame->parry[i-1][j-1];    /*left-up*/
+				ref[ref_cunt++] = &frame->parry[i-1][j];      /*lup*/
+				pdbg("ref:[%d %d] [%d %d] [%d %d]", i, j-1, i-1, j-1, i-1, j);
 
 				if (j < (frame->width-1)){
-					//printf("%s %d\n", __FUNCTION__, __LINE__);
-					ref[ref_cunt++] = &frame->parry[i-1][j+1]; //left-up
+					ref[ref_cunt++] = &frame->parry[i-1][j+1]; /*left-up*/
+					pdbg(" [%d %d]", i-1, j+1);
 				}
+				pdbg("\n");
 			}
-			//printf("%s %d\n", __FUNCTION__, __LINE__);
 
 			if(ref_cunt > 4){
-				printf("get error ref cunt:%d\n", ref_cunt);
+				pdbg("get error ref cunt:%d\n", ref_cunt);
 				return -1;
 			}
-			//printf("%s %d\n", __FUNCTION__, __LINE__);
 
 			for(k = 0; k < ref_cunt; k++){
-				//printf("%s %d\n", __FUNCTION__, __LINE__);
 				if (is_similar_colour(current->colour, ref[k]->colour)){
-					//printf("%s %d\n", __FUNCTION__, __LINE__);
-					add_pixle_to_obj(ref[k]->obj, current);
-					//printf("%s %d\n", __FUNCTION__, __LINE__);
+					pdbg("similar to ref %d\n", k);
+					add_pixle_to_obj(ref[k]->obj, i, j);
+					current->obj = ref[k]->obj;
 					break;
 				}
 			}
-			//printf("%s %d\n", __FUNCTION__, __LINE__);
 
 			if (k >= ref_cunt){
-				//printf("%s %d\n", __FUNCTION__, __LINE__);
-				new_object(frame, current);
+				obj = new_object(frame, current->colour);
+				add_pixle_to_obj(obj, i, j);
+				current->obj = obj;
 			}
-			//printf("%s %d\n", __FUNCTION__, __LINE__);
 		}
 	}
 

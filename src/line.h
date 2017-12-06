@@ -25,6 +25,7 @@ int generate_edge(PLACE *pix, int pixcnt, LINE *ledge, LINE *redge);
 int line_reach_place(PLACE *src, PLACE *aim);
 int is_line_continuous(PLACE *a, PLACE *b);
 int init_line(LINE *line, int arrynum);
+int print_line(LINE *line);
 
 #endif
 

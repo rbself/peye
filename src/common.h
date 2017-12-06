@@ -20,5 +20,11 @@ struct peye{
 #define peye_assert(x) if(x) printf("%s %d asert!\n", __FILE__, __LINE__);
 int is_similar_colour(unsigned char a, unsigned char b);
 
+#if 0
+#define pdbg(fmt,...) printf("(%s %d)"fmt"\n", __FUNCTION__, __LINE__, ##__VA_ARGS__)
+#else
+#define pdbg(fmt,...) 
+#endif
+
 #endif
 

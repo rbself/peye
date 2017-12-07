@@ -158,13 +158,13 @@ int add_pixle_to_obj(struct object* obj, int y, int x)
 
 int obj_parse_process(FRAME_OBJ *frame, char *yp)
 {
-	int i, j, k;
+	int i, j, k, ref_sml;
 	unsigned char *line;
 	PIXEL *current;
 	PIXEL *ref[4];
 	int ref_cunt = 0;;
 	struct object *obj;
-	unsigned char colour;
+	unsigned char div_c, tmp_c;
 
 	pdbg("%s %d\n", __FUNCTION__, __LINE__);
 	for(i=START_LINE; i < END_LINE; i++){
@@ -175,7 +175,7 @@ int obj_parse_process(FRAME_OBJ *frame, char *yp)
 			current->colour = *(line+j);
 			ref_cunt = 0;
 			pdbg("start y:%d x:%d c:%d \n", i, j, current->colour);
-			if (j == 0 && i == 400){
+			if (j == 0 && i == START_LINE){
 				obj = new_object(frame, current->colour);
 				if (obj){
 					add_pixle_to_obj(obj, i, j);
@@ -186,7 +186,7 @@ int obj_parse_process(FRAME_OBJ *frame, char *yp)
 				ref[ref_cunt++] = &frame->parry[i-1][j];
 				ref[ref_cunt++] = &frame->parry[i-1][j+1];
 				pdbg("ref:[%d %d] [%d %d]\n", i-1, j, i-1, j+1);
-			} else if (i == 400){
+			} else if (i == START_LINE){
 				ref[ref_cunt++] = &frame->parry[i][j-1];
 				pdbg("ref:[%d %d]\n", i, j-1);
 			} else {
@@ -206,19 +206,25 @@ int obj_parse_process(FRAME_OBJ *frame, char *yp)
 				pdbg("get error ref cunt:%d\n", ref_cunt);
 				return -1;
 			}
+			
+			div_c=100;
+			ref_sml = 0;
 
 			for(k = 0; k < ref_cunt; k++){
-				if (is_similar_colour(current->colour, ref[k]->colour)){
-					pdbg("similar to ref %d\n", k);
-					if (ref[k]->obj){
-						add_pixle_to_obj(ref[k]->obj, i, j);
-						current->obj = ref[k]->obj;
-					}
-					break;
+				tmp_c = abs(current->colour-ref[k]->colour);
+				if(div_c > tmp_c){
+					div_c = tmp_c;
+					ref_sml = k;
 				}
 			}
 
-			if (k >= ref_cunt){
+			if (div_c < 10){
+					pdbg("use ref %d\n", ref_sml);
+					if (ref[ref_sml]->obj){
+						add_pixle_to_obj(ref[ref_sml]->obj, i, j);
+						current->obj = ref[ref_sml]->obj;
+					}
+			} else {
 				obj = new_object(frame, current->colour);
 				if (obj){
 					add_pixle_to_obj(obj, i, j);

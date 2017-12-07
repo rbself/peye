@@ -72,6 +72,7 @@ void main()
 		printf("get_one_frame error!\n");
 		return;
 	}
+	//get_column(&frame);
 
 	frame.fobj = malloc(sizeof(struct st_frame_obj));
 

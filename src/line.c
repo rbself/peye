@@ -133,6 +133,10 @@ int generate_edge(PLACE *pix, int pixcnt, LINE *ledge, LINE *redge)
 			ml->x = p->x;
 		}
 	}
+
+	if (line_num <= 1){
+		return 0;
+	}
 	mr->x = (p-1)->x;
 	mr->y = (p-1)->y;
 	printf("\n");
